@@ -46,6 +46,14 @@ public class REServer {
                 app.get("/sales/postcode/{postcode}", ctx -> {
                     salesHandler.findSaleByPostCode(ctx, ctx.pathParam("postcode"));
                 });
+                //Get 20 closest houses under budget
+                app.get("/sales/underBudget/{budget}", ctx -> {
+                    salesHandler.findPropertiesUnderBudget(ctx, ctx.pathParam("budget"));
+                });
+                //Gets the average price of properties in the given postcode
+                app.get("/sales/avgPrice/{postcode}", ctx -> {
+                    salesHandler.findAveragePriceInPostcode(ctx, ctx.pathParam("postcode"));
+                });
             });
 
 

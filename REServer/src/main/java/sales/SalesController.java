@@ -64,11 +64,35 @@ public class SalesController {
         }
     }
 
+    public void findPropertiesUnderBudget(Context ctx, String budget) {
+        List<HomeSale> sales = homeSales.getUnderBudget(budget);
+        if (sales.isEmpty()) {
+            ctx.result("No properties found");
+            ctx.status(404);
+        } else {
+            ctx.json(sales);
+            ctx.status(200);
+        }
+    }
+
+    public void findAveragePriceInPostcode(Context ctx, String postcode) {
+        Double averagePrice = homeSales.getAveragePriceInPostcode(postcode);
+        if (averagePrice == null) {
+            ctx.result("Average Not Found");
+            ctx.status(404);
+        } else {
+            ctx.json(averagePrice);
+            ctx.status(200);
+        }
+    }
+
     private Context error(Context ctx, String msg, int code) {
         ctx.result(msg);
         ctx.status(code);
         return ctx;
     }
+
+
 
    
 
