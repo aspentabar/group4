@@ -38,60 +38,72 @@ public class SalesDAO {
 
     // returns Optional wrapping a HomeSale if id is found, empty Optional otherwise
     public Optional<HomeSale> getSaleById(String saleID) {
-        String query = "SELECT * FROM property WHERE property_id = ? LIMIT 1";
+        String updateViewCountQuery = "UPDATE property SET view_count = view_count + 1 WHERE property_id = ?";
+        String selectQuery = "SELECT * FROM property WHERE property_id = ? LIMIT 1";
     
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-        PreparedStatement stmt = conn.prepareStatement(query)) {
-        
-        stmt.setString(1, saleID);
-        
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                HomeSale sale = new HomeSale();
-                sale.setPropertyId(rs.getString("property_id"));
-                sale.setPurchasePrice(rs.getString("purchase_price"));
-                sale.setPostCode(rs.getString("post_code"));
-                
-                // Return the found HomeSale wrapped in an Optional
-                return Optional.of(sale);
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+    
+            // First, increment the view count
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateViewCountQuery)) {
+                updateStmt.setString(1, saleID);
+                updateStmt.executeUpdate();
             }
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-
-    // If no result found, return an empty Optional
-        return Optional.empty();
-    }
-
-    // returns a List of home sales in a given postCode
-    public List<HomeSale> getSalesByPostCode(String postCode) {
-        List<HomeSale> salesList = new ArrayList<>();
-
-        String query = "SELECT * FROM property WHERE post_code = ? LIMIT 20";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-            PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setString(1, postCode);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    HomeSale sale = new HomeSale();
-                    sale.setPropertyId(rs.getString("property_id"));
-                    sale.setPurchasePrice(rs.getString("purchase_price"));
-                    sale.setPostCode(rs.getString("post_code"));
-
-                    salesList.add(sale);
+    
+            // Then, retrieve the property details
+            try (PreparedStatement selectStmt = conn.prepareStatement(selectQuery)) {
+                selectStmt.setString(1, saleID);
+    
+                try (ResultSet rs = selectStmt.executeQuery()) {
+                    if (rs.next()) {
+                        HomeSale sale = new HomeSale();
+                        setFields(sale, rs);
+                        return Optional.of(sale);
+                    }
                 }
             }
-
+    
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return salesList;   
+    
+        return Optional.empty();
     }
+    
+    // returns a List of home sales in a given postCode
+    public List<HomeSale> getSalesByPostCode(String postCode) {
+        List<HomeSale> salesList = new ArrayList<>();
+    
+        String query = "SELECT * FROM property WHERE post_code = ? LIMIT 20";
+        String updatePostcodeViewCount = "UPDATE postcode SET view_count_postcode = view_count_postcode + 1 WHERE post_code = ?";
+    
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+    
+            // Update view count
+            try (PreparedStatement updateStmt = conn.prepareStatement(updatePostcodeViewCount)) {
+                updateStmt.setString(1, postCode);
+                updateStmt.executeUpdate();
+            }
+    
+            // Retrieve properties
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, postCode);
+    
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        HomeSale sale = new HomeSale();
+                        setFields(sale, rs); // populate fields from ResultSet
+                        salesList.add(sale);
+                    }
+                }
+            }
+    
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    
+        return salesList;
+    }
+    
 
 
 
@@ -109,9 +121,7 @@ public class SalesDAO {
 
         while (rs.next()) {
             HomeSale sale = new HomeSale();
-            sale.setPropertyId(rs.getString("property_id"));
-            sale.setPurchasePrice(rs.getString("purchase_price"));
-            sale.setPostCode(rs.getString("post_code"));
+            setFields(sale, rs);
 
             salesList.add(sale);
         }
@@ -140,9 +150,7 @@ public List<HomeSale> getUnderBudget(String upperBudget) {
         try (ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 HomeSale sale = new HomeSale();
-                sale.setPropertyId(rs.getString("property_id"));
-                sale.setPurchasePrice(rs.getString("purchase_price"));
-                sale.setPostCode(rs.getString("post_code"));
+                setFields(sale, rs);
                 salesList.add(sale);
             }
         }
@@ -182,5 +190,46 @@ public Double getAveragePriceInPostcode(String postcode) {
     return averagePrice;  // Returns null if no result is found
 }
 
-}
+/**
+     * Utility method to populate a HomeSale object from a database ResultSet.
+     *
+     * @param sale the HomeSale object to populate
+     * @param rs   the ResultSet from the executed query
+     * @throws SQLException if an error occurs accessing result set data
+     */
+    private static void setFields(HomeSale sale, ResultSet rs) throws SQLException {
+        sale.setPropertyId(rs.getString("property_id"));
+        sale.setPurchasePrice(rs.getString("purchase_price"));
+        sale.setPostCode(rs.getString("post_code"));
+        sale.setDownloadDate(rs.getString("download_date"));
+        sale.setCouncilName(rs.getString("council_name"));
+        sale.setAddress(rs.getString("address"));
+        sale.setNatureOfProperty(rs.getString("nature_of_property"));
+        sale.setStrataLotNumber(String.valueOf(rs.getInt("strata_lot_number")));
+        sale.setPropertyName(rs.getString("property_name"));
+        sale.setAreaType(rs.getString("area_type"));
+        sale.setContractDate(rs.getString("contract_date"));
+        sale.setSettlementDate(rs.getString("settlement_date"));
+        sale.setZoning(rs.getString("zoning"));
+        sale.setNatureOfProperty(rs.getString("nature_of_property")); // duplicated, but retained for consistency
+        sale.setPrimaryPurpose(rs.getString("primary_purpose"));
+        sale.setLegalDescription(rs.getString("legal_description"));
+        sale.setPropertyType(rs.getString("property_type"));
+        sale.setCount(rs.getInt("view_count"));
 
+        String postCode = rs.getString("post_code");
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("SELECT view_count_postcode FROM postcode WHERE post_code = ?")) {
+    
+            stmt.setString(1, postCode);
+    
+            try (ResultSet viewRs = stmt.executeQuery()) {
+                if (viewRs.next()) {
+                    sale.setPostCodeCount(viewRs.getInt("view_count_postcode"));
+                }
+            }
+        
+        }
+
+    }
+}

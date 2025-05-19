@@ -19,9 +19,13 @@ public class HomeSale {
     public String natureOfProperty;
     public String primaryPurpose;
     public String legalDescription;
+    public int count;
+    public int postCodeCount;
 
 
-    public HomeSale(String propertyId, String downloadDate, String councilName, String purchasePrice, String address, String postCode, String propertyType, String strataLotNumber, String propertyName, String areaType, String contractDate, String settlementDate, String zoning, String natureOfProperty, String primaryPurpose, String legalDescription) {
+    public HomeSale(String propertyId, String downloadDate, String councilName, String purchasePrice, String address, 
+    String postCode, String propertyType, String strataLotNumber, String propertyName, String areaType, String contractDate, 
+    String settlementDate, String zoning, String natureOfProperty, String primaryPurpose, String legalDescription, int count, int postCodeCount) {
         this.propertyId = propertyId;
         this.downloadDate = downloadDate;
         this.councilName = councilName;
@@ -38,15 +42,32 @@ public class HomeSale {
         this.natureOfProperty = natureOfProperty;
         this.primaryPurpose = primaryPurpose;
         this.legalDescription = legalDescription;
+        this.count = count;
+        this.postCodeCount = postCodeCount;
     }
 
-    public HomeSale(String propertyId, String postCode, String purchasePrice) {
+    public HomeSale(String propertyId, String postCode, String purchasePrice, int count) {
         this.propertyId = propertyId;
         this.postCode = postCode;
         this.purchasePrice = purchasePrice;
+        this.count = count;
     }
     
+    public int getCount(){
+        return count;
+    }
 
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public int getPostCodeCount(){
+        return postCodeCount;
+    }
+
+    public void setPostCodeCount(int postCodeCount) {
+        this.postCodeCount = postCodeCount;
+    }
 
     public String getPropertyId() {
         return propertyId;

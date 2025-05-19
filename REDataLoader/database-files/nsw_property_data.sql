@@ -2,6 +2,11 @@ DROP SCHEMA IF EXISTS realestate;
 CREATE SCHEMA realestate;
 USE realestate;
 
+CREATE TABLE postcode (
+    post_code           VARCHAR(255) PRIMARY KEY,
+    view_count_postcode INT         DEFAULT 0
+);
+
 CREATE TABLE property (
     property_id         VARCHAR(255) NULL,
     download_date       VARCHAR(255) NULL,
@@ -18,10 +23,13 @@ CREATE TABLE property (
     zoning              VARCHAR(255) NULL,
     nature_of_property  VARCHAR(255) NULL,
     primary_purpose     VARCHAR(255) NULL,
-    legal_description   VARCHAR(255) NULL
+    legal_description   VARCHAR(255) NULL,
+    view_count          INT          DEFAULT 0,
+    FOREIGN KEY (post_code) REFERENCES postcode(post_code)
 );
 
-SELECT COUNT(*) FROM property;
+
+
 
 
 
