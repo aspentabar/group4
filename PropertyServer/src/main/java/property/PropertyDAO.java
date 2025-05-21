@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import sales.HomeSale;
+import property.HomeSale;
 
 
 import java.sql.Connection;
@@ -55,7 +55,7 @@ public class PropertyDAO {
     }
 
     // returns a List of home sales in a given postCode
-    public List<HomeSale> getSalesByPostCode(String postCode) {
+    public List<HomeSale> getPropertiesByPostCode(String postCode) {
         List<HomeSale> salesList = new ArrayList<>();
 
         String query = "SELECT * FROM property WHERE post_code = ? LIMIT 20";
@@ -86,7 +86,7 @@ public class PropertyDAO {
 
 
     // returns all home sales. Potentially large
-    public List<HomeSale> getAllSales() {
+    public List<HomeSale> getAllProperties() {
 
         List<HomeSale> salesList = new ArrayList<>();
 
@@ -111,7 +111,7 @@ public class PropertyDAO {
     }
 
     //returns 20 houses closest to and under the upper budget given
-    public List<HomeSale> getUnderBudget(String upperBudget) {
+    public List<HomeSale> getPropertiesUnderBudget(String upperBudget) {
 
         List<HomeSale> salesList = new ArrayList<>();
 

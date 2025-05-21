@@ -62,7 +62,7 @@ public class PropertyController {
             ctx.result("No properties found");
             ctx.status(404);
         } else {
-            ctx.json(sales);
+            ctx.json(propertiesList);
             ctx.status(200);
         }
     }

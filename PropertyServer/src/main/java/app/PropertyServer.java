@@ -1,8 +1,9 @@
 package app;
+
 import io.javalin.Javalin;
 import io.javalin.config.JavalinConfig;
-import sales.SalesDAO;
-import sales.SalesController;
+import property.PropertyDAO;
+import property.PropertyController;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
