@@ -19,7 +19,7 @@ public class SalesDAO {
     // List to hold test data
     private List<HomeSale> sales = new ArrayList<>();
 
-    private static final String DB_URL = "jdbc:mysql://localhost:3308/realestate"; //MAKE SURE THIS IS YOUR PORT
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/realestate"; //MAKE SURE THIS IS YOUR PORT
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "123";
 
