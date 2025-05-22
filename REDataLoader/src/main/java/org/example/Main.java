@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Map;
 
 /**
@@ -80,6 +81,27 @@ public class Main {
                 // Write the updated values to the output CSV
                 System.out.println(recordValues.toString());
                 //System.out.println( "HELLO" + record.get("property_id"));
+
+
+                final String checkPostcodeSQL = "SELECT COUNT(*) FROM postcode WHERE post_code = ?";
+                PreparedStatement checkPostcodeStmt = connection.prepareStatement(checkPostcodeSQL);
+                checkPostcodeStmt.setString(1, record.get("post_code"));
+                ResultSet rs = checkPostcodeStmt.executeQuery();
+                rs.next();
+                int exists = rs.getInt(1);
+                checkPostcodeStmt.close();
+
+                if (exists == 0) {
+                    final String insertPostcodeSQL = "INSERT INTO postcode (post_code) VALUES (?)";
+                    PreparedStatement insertPostcodeStmt = connection.prepareStatement(insertPostcodeSQL);
+                    insertPostcodeStmt.setString(1, record.get("post_code"));
+                    insertPostcodeStmt.executeUpdate();
+                    insertPostcodeStmt.close();
+                }
+
+
+
+
                 stmt.setString(1, record.get("property_id"));
                 stmt.setString(2, record.get("address"));
                 stmt.setString(3, record.get("purchase_price"));

@@ -89,50 +89,74 @@ public class AnalyticsDAO {
         return Optional.empty();
     }
 
-    // Get all sale access counts as a list of Analytics objects
-    public List<Analytics> getAllSaleAccessCounts() {
-        List<Analytics> counts = new ArrayList<>();
-        String query = "SELECT property_id, view_count FROM property";
+   // Get all sale access counts as a list of Analytics objects
+public List<Analytics> getAllSaleAccessCounts() {
+    List<Analytics> counts = new ArrayList<>();
+    String query = "SELECT property_id, post_code, view_count FROM property LIMIT 20";  // include post_code
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
+    try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+         PreparedStatement stmt = conn.prepareStatement(query);
+         ResultSet rs = stmt.executeQuery()) {
 
-            while (rs.next()) {
-                Analytics analytics = new Analytics();
-                analytics.setSaleId(rs.getString("property_id"));
-                analytics.setSaleAccessCount(rs.getInt("view_count"));
-                counts.add(analytics);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        while (rs.next()) {
+            Analytics analytics = new Analytics();
+            setFields(analytics, rs);  // use helper to populate all fields
+            counts.add(analytics);
         }
 
-        return counts;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
 
-    // Get all postcode access counts as a list of Analytics objects
-    public List<Analytics> getAllPostCodeAccessCounts() {
-        List<Analytics> counts = new ArrayList<>();
-        String query = "SELECT post_code, view_count_postcode FROM postcode";
+    return counts;
+}
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
+// Get all postcode access counts as a list of Analytics objects
+public List<Analytics> getAllPostCodeAccessCounts() {
+    List<Analytics> counts = new ArrayList<>();
+    String query = "SELECT post_code, view_count_postcode FROM postcode LIMIT 20";
 
-            while (rs.next()) {
-                Analytics analytics = new Analytics();
-                analytics.setPostCode(rs.getString("post_code"));
-                analytics.setPostCodeAccessCount(rs.getInt("view_count_postcode"));
-                counts.add(analytics);
-            }
+    try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+         PreparedStatement stmt = conn.prepareStatement(query);
+         ResultSet rs = stmt.executeQuery()) {
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        while (rs.next()) {
+            Analytics analytics = new Analytics();
+            // Manually set fields since we don't have property_id or view_count
+            analytics.setPostCode(rs.getString("post_code"));
+            analytics.setPostCodeAccessCount(rs.getInt("view_count_postcode"));
+            counts.add(analytics);
         }
 
-        return counts;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+
+    return counts;
+}
+
+
+
+    private static void setFields(Analytics analytics, ResultSet rs) throws SQLException {
+        analytics.setSaleId(rs.getString("property_id"));
+        analytics.setPostCode(rs.getString("post_code"));
+        analytics.setSaleAccessCount(rs.getInt("view_count"));
+    
+        String postCode = rs.getString("post_code");
+    
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(
+                 "SELECT view_count_postcode FROM postcode WHERE post_code = ?")) {
+    
+            stmt.setString(1, postCode);
+    
+            try (ResultSet viewRs = stmt.executeQuery()) {
+                if (viewRs.next()) {
+                    analytics.setPostCodeAccessCount(viewRs.getInt("view_count_postcode"));
+                }
+            }
+        }
+    }
+    
 
 }
