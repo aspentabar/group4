@@ -1,4 +1,5 @@
 app/PropertyServer.class
+property/KafkaMessageProducer.class
 property/PropertyDAO.class
 property/PropertyController.class
 property/HomeSale.class

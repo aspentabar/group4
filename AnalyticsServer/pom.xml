@@ -34,6 +34,12 @@
             <version>8.0.30</version> <!-- or latest stable version -->
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>3.7.0</version> <!-- Use latest stable version -->
+        </dependency>
+
 
 
 

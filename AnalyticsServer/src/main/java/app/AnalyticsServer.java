@@ -1,6 +1,7 @@
 package app;
 
 import analytics.AnalyticsDAO;
+import analytics.KafkaSaleConsumer;
 import analytics.AnalyticsController;
 import io.javalin.Javalin;
 import io.javalin.config.JavalinConfig;
@@ -16,8 +17,11 @@ public class AnalyticsServer {
         // In-memory or database-backed analytics data access object
         AnalyticsDAO analyticsDAO = new AnalyticsDAO();
 
+        new Thread(new KafkaSaleConsumer(analyticsDAO)).start();
+
         // Controller handles HTTP requests and uses DAO
         AnalyticsController analyticsController = new AnalyticsController(analyticsDAO);
+
 
         // Create Javalin server, start on port 8080 (different port from property server)
         var app = Javalin.create()
